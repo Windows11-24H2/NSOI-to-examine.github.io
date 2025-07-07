@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSOI题目审核后台</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        button {
+            padding: 5px 10px;
+            margin: 0 5px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>NSOI题目审核后台</h1>
+        <p>管理员可以在这里审核提交的题目。</p>
+
+        <!-- 管理员登录表单 -->
+        <h2>管理员登录</h2>
+        <form id="loginForm">
+            <label for="adminEmail">管理员邮箱</label>
+            <input type="email" id="adminEmail" name="adminEmail" required>
+
+            <label for="adminPassword">管理员密码</label>
+            <input type="password" id="adminPassword" name="adminPassword" required>
+
+            <button type="button" onclick="loginAdmin()">登录</button>
+        </form>
+
+        <!-- 待审核题目列表 -->
+        <div id="adminPanel" style="display: none;">
+            <h2>待审核题目列表</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>题目标题</th>
+                        <th>出题人</th>
+                        <th>难度</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="questionsTable">
+                    <!-- 数据将通过AJAX动态加载 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // 管理员登录
+        function loginAdmin() {
+            const adminEmail = document.getElementById('adminEmail').value;
+            const adminPassword = document.getElementById('adminPassword').value;
+
+            // 发送登录请求到后端
+            fetch('/admin/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: admin, password: admin })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('登录成功！');
+                    document.getElementById('adminPanel').style.display = 'block';
+                    loadQuestions(); // 加载待审核题目
+                } else {
+                    alert('登录失败，请检查邮箱和密码！');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        // 加载待审核题目
+        function loadQuestions() {
+            fetch('/admin/questions')
+            .then(response => response.json())
+            .then(data => {
+                const questionsTable = document.getElementById('questionsTable');
+                questionsTable.innerHTML = ''; // 清空表格内容
+
+                data.questions.forEach(question => {
+                    const row = document.createElement('tr');
+
+                    const titleCell = document.createElement('td');
+                    titleCell.textContent = question.questionTitle;
+                    row.appendChild(titleCell);
+
+                    const authorCell = document.createElement('td');
+                    authorCell.textContent = question.questionAuthor;
+                    row.appendChild(authorCell);
+
+                    const difficultyCell = document.createElement('td');
+                    difficultyCell.textContent = question.questionDifficulty;
+                    row.appendChild(difficultyCell);
+
+                    const actionCell = document.createElement('td');
+                    const approveButton = document.createElement('button');
+                    approveButton.textContent = '通过';
+                    approveButton.onclick = () => approveQuestion(question._id);
+                    actionCell.appendChild(approveButton);
+
+                    const rejectButton = document.createElement('button');
+                    rejectButton.textContent = '拒绝';
+                    rejectButton.onclick = () => rejectQuestion(question._id);
+                    actionCell.appendChild(rejectButton);
+
+                    row.appendChild(actionCell);
+
+                    questionsTable.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        // 审核题目：通过
+        function approveQuestion(questionId) {
+            fetch(`/admin/approve/${questionId}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                loadQuestions(); // 重新加载题目列表
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        // 审核题目：拒绝
+        function rejectQuestion(questionId) {
+            fetch(`/admin/reject/${questionId}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                loadQuestions(); // 重新加载题目列表
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
