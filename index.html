@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSOI题目审核系统(限审核NSOI的,其他一律打回)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2, h3 {
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 5px;
+        }
+        input, textarea, select {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>NSOI题目审核系统</h1>
+        <p>公平 · 公正 · 公开</p>
+
+        <h2>提交题目申请</h2>
+        <div class="section">
+            <h3>负责人信息</h3>
+            <form id="submissionForm">
+                <label for="ojName">OJ名字</label>
+                <input type="text" id="ojName" name="ojName" required>
+
+                <label for="uid">UID</label>
+                <input type="text" id="uid" name="uid" required>
+
+                <label for="email">邮箱</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="awards">获奖经历</label>
+                <textarea id="awards" name="awards" rows="3"></textarea>
+            </form>
+        </div>
+
+        <div class="section">
+            <h3>题目信息</h3>
+            <form id="questionInfo">
+                <label for="questionTitle">题目标题</label>
+                <input type="text" id="questionTitle" name="questionTitle" required>
+
+                <label for="questionAuthor">出题人</label>
+                <input type="text" id="questionAuthor" name="questionAuthor" required>
+
+                <label for="questionDifficulty">难度</label>
+                <select id="questionDifficulty" name="questionDifficulty">
+                    <option value="easy">入门</option>
+                    <option value="medium">普及-</option>
+                    <option value="hard">普及/提高-</option>
+                    <option value="qwe">普及+/提高</option>
+                    <option value="df">提高+/省选-</option>
+                    <option value="noi">省选/NOI-</option>
+                    <option value="ctsc">NOI/NOI+CTSC</option>
+                </select>
+
+                <label for="questionDescription">题目描述</label>
+                <textarea id="questionDescription" name="questionDescription" rows="5" required></textarea>
+
+                <label for="dataPackage">数据包 (请上传zip文件)</label>
+                <input type="file" id="dataPackage" name="dataPackage" accept=".zip" required>
+            </form>
+        </div>
+
+        <button type="button" onclick="submitQuestion()">提交题目申请</button>
+
+        <h2>查询结果</h2>
+        <div class="section">
+            <form id="queryForm">
+                <label for="queryEmail">请输入您的邮箱</label>
+                <input type="email" id="queryEmail" name="queryEmail" required>
+            </form>
+            <button type="button" onclick="submitQuery()">查询结果</button>
+        </div>
+    </div>
+
+    <script>
+        function submitQuestion() {
+            const formData = new FormData();
+            formData.append('ojName', document.getElementById('ojName').value);
+            formData.append('uid', document.getElementById('uid').value);
+            formData.append('email', document.getElementById('email').value);
+            formData.append('awards', document.getElementById('awards').value);
+            formData.append('questionTitle', document.getElementById('questionTitle').value);
+            formData.append('questionAuthor', document.getElementById('questionAuthor').value);
+            formData.append('questionDifficulty', document.getElementById('questionDifficulty').value);
+            formData.append('questionDescription', document.getElementById('questionDescription').value);
+            formData.append('dataPackage', document.getElementById('dataPackage').files[0]);
+
+            fetch('/submit', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        function submitQuery() {
+            const email = document.getElementById('queryEmail').value;
+
+            fetch(`/query?email=${email}`)
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
