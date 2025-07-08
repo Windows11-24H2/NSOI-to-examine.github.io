@@ -1,14 +1,8 @@
 {
-  "name": "nsoi-review-system",
+  "name": "nsoi-project",
   "version": "1.0.0",
-  "description": "NSOI题目审核系统",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
   "dependencies": {
-    "express": "^4.17.1",
-    "mongoose": "^6.0.13",
-    "multer": "^1.4.2"
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2"
   }
 }
